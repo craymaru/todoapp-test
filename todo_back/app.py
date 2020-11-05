@@ -1,6 +1,6 @@
 from chalice import Chalice
 
-app = Chalice(app_name='temp')
+app = Chalice(app_name='todo_back')
 
 
 @app.route('/')
