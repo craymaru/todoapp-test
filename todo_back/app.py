@@ -1,4 +1,5 @@
-from chalice import Chalice, NotFoundError
+from chalice import Chalice
+from chalice import BadRequestError, NotFoundError
 from chalicelib import database
 
 app = Chalice(app_name='todo_back')
@@ -16,7 +17,19 @@ def get_todo(todo_id):
     else:
         raise NotFoundError('Todo not found.') #404
 
+@app.route('/todos', methods=['POST'])
+def create_todo():
+    # リクエストメッセージjson_bodyを修得
+    todo = app.current_request.json_body
 
+    # 必須項目をチェック
+    for key in ['title', 'memo', 'priority']:
+        if key not in todo:
+            raise BadRequestError(f"{key} is required.")
+
+    # データを登録する
+    return database.create_todo(todo)
+    
 
 # The view function above will return {"hello": "world"}
 # whenever you make an HTTP GET request to '/'.
