@@ -1,4 +1,5 @@
 import os
+from os import terminal_size
 import boto3
 from boto3.dynamodb.conditions import Key
 import uuid
@@ -44,3 +45,25 @@ def create_todo(todo):
     table = _get_database().Table(os.environ['DB_TABLE_NAME'])
     table.put_item(Item=item)
     return item
+
+def update_todo(todo_id, changes):
+    table = _get_database().Table(os.environ['DB_TABLE_NAME'])
+
+    # クエリを構築
+    update_expression = []
+    expression_attribute_values = {}
+    for key in ['title', 'memo', 'priority', 'completed']:
+        if key in changes:
+            update_expression.append(f"{key} = :{key[0:1]}")
+            expression_attribute_values[f":{key[0:1]}"] = changes[key]
+
+    # DynamoDB のデータを更新する
+    result = table.update_item(
+        Key={
+            'id': todo_id,
+        },
+        UpdateExpression='set ' + ','.join(update_expression),
+        ExpressionAttributeValues=expression_attribute_values,
+        ReturnValues='ALL_NEW'
+    )
+    return result['Attributes']

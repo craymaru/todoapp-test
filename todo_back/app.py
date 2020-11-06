@@ -27,9 +27,17 @@ def create_todo():
         if key not in todo:
             raise BadRequestError(f"{key} is required.")
 
-    # データを登録する
+    # データを登録
     return database.create_todo(todo)
     
+
+@app.route('/todos/{todo_id}', methods=['PUT'])
+def update_todo(todo_id):
+    changes = app.current_request.json_body
+
+    # データを更新
+    return database.update_todo(todo_id, changes)
+
 
 # The view function above will return {"hello": "world"}
 # whenever you make an HTTP GET request to '/'.
